@@ -16,7 +16,9 @@ const app = express();
 // Middleware
 const allowedOrigins = [
     process.env.FRONTEND_URL,
-    'https://lead-management-zeta.vercel.app' // Add your deployed frontend URL
+    'https://lead-management-zeta.vercel.app',
+    'http://localhost:5173', // Local development
+    'http://localhost:3000'  // Alternative local port
 ];
 
 app.use(cors({
@@ -24,13 +26,18 @@ app.use(cors({
         // Allow requests with no origin (like mobile apps or curl)
         if (!origin) return callback(null, true);
         
-        if (allowedOrigins.indexOf(origin) !== -1) {
+        // Check if the origin is in the allowed list
+        if (allowedOrigins.some(allowedOrigin => allowedOrigin === origin)) {
             callback(null, true);
         } else {
+            console.log('CORS blocked origin:', origin);
             callback(new Error('Not allowed by CORS'));
         }
     },
-    credentials: true
+    credentials: true,
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With'],
+    optionsSuccessStatus: 200 // For legacy browser support
 }));
 app.use(express.json());
 app.use(cookieParser());
@@ -46,6 +53,19 @@ mongoose.connect(MONGO_URL).then(() => {
 });
 
 // Routes
+app.get("/", (req, res) => {
+    res.json({ 
+        message: "Lead Management API is running",
+        cors: "enabled",
+        allowedOrigins: [
+            process.env.FRONTEND_URL,
+            'https://lead-management-zeta.vercel.app',
+            'http://localhost:5173',
+            'http://localhost:3000'
+        ]
+    });
+});
+
 app.use("/api/auth", authRoutes);
 app.use("/api/leads", leadRoutes);
 
