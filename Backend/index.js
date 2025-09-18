@@ -14,8 +14,22 @@ import leadRoutes from "./src/routes/leads.js";
 const app = express();
 
 // Middleware
+const allowedOrigins = [
+    process.env.FRONTEND_URL,
+    'https://lead-management-zeta.vercel.app' // Add your deployed frontend URL
+];
+
 app.use(cors({
-    origin: process.env.FRONTEND_URL,
+    origin: function (origin, callback) {
+        // Allow requests with no origin (like mobile apps or curl)
+        if (!origin) return callback(null, true);
+        
+        if (allowedOrigins.indexOf(origin) !== -1) {
+            callback(null, true);
+        } else {
+            callback(new Error('Not allowed by CORS'));
+        }
+    },
     credentials: true
 }));
 app.use(express.json());
