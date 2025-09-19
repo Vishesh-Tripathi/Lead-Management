@@ -17,7 +17,15 @@ export const authService = {
   },
 
   getCurrentUser: async () => {
-    const response = await api.get('/auth/me');
-    return response.data;
+    try {
+      const response = await api.get('/auth/me');
+      return response.data;
+    } catch (error) {
+      // If 401, it just means user is not authenticated
+      if (error.response?.status === 401) {
+        throw new Error('Not authenticated');
+      }
+      throw error;
+    }
   },
 };

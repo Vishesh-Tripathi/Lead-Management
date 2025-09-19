@@ -42,6 +42,10 @@ export const AuthProvider = ({ children }) => {
       const response = await authService.getCurrentUser();
       dispatch({ type: 'SET_USER', payload: response.user });
     } catch (error) {
+      // Don't log 401 errors as they're expected when not logged in
+      if (error.response?.status !== 401) {
+        console.error('Error fetching current user:', error);
+      }
       dispatch({ type: 'SET_USER', payload: null });
     } finally {
       dispatch({ type: 'SET_LOADING', payload: false });

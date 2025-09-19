@@ -39,6 +39,7 @@ const LoginPage = () => {
       navigate(from, { replace: true });
     } catch (error) {
       // Error is handled by the context
+      console.log('Login error:', error);
     } finally {
       setIsSubmitting(false);
     }
